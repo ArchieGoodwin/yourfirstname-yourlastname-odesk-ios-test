@@ -36,8 +36,8 @@
 	NSManagedObjectModel *mom = appDelegate.managedObjectModel;
 	
 	NSFetchRequest *result = nil;
-	result = [mom fetchRequestTemplateForName:name];
-	
+	result = [[mom fetchRequestTemplateForName:name] copy];
+
 	return result;
 }
 
@@ -51,8 +51,27 @@
 		result = [NSArray array];
 		NSLog(@"%@", [error localizedFailureReason]);
 	}
-	
-	return result;
+    if([name isEqualToString:@"AllModels"])
+    {
+        NSSortDescriptor *sortDescriptor;
+        sortDescriptor = [[NSSortDescriptor alloc] initWithKey:@"modelName" ascending:YES];
+        NSArray *sortDescriptors = [NSArray arrayWithObject:sortDescriptor];
+        NSArray *sortedArray;
+        sortedArray = [result sortedArrayUsingDescriptors:sortDescriptors];
+        NSMutableArray *temp = [NSMutableArray new];
+        for(ModelsEntity *model in sortedArray)
+        {
+            NSString *str = [NSString stringWithFormat:@"%@; %@", model.owner.ownerName, model.modelName];
+            [temp addObject:str];
+        }
+        
+        
+        
+        return temp;
+    }
+    
+    return result;
+    
 }
 
 + (void)fillUnsortedData {
